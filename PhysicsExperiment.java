@@ -4,6 +4,9 @@
  * Does this compile or finish running within 5 seconds? Y/N
  */
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 /**
  * This class implements a greedy scheduler to assign students
  * to steps in a physics experiment. There are three test cases in the main
@@ -33,13 +36,46 @@ public class PhysicsExperiment {
     int numSteps,
     int[][] signUpTable
   ) {
-    // Your scheduleTable is initialized as all 0's so far. Your code will put 1's
-    // in the table in the right places based on the return description
     int[][] scheduleTable = new int[numStudents + 1][numSteps + 1];
-
-    // Your code goes here
-
+    boolean[]stepsLeft = new boolean[numSteps + 1];
+    for(int i = 1; i < numSteps + 1; ++i) {
+        stepsLeft[i] = true;
+    }
+    while(!allStepsScheduled(stepsLeft)) {
+        int bestStudentStepCount = -1;
+        int bestStudent = -1;
+        for (int currentStudent = 1; currentStudent < numStudents + 1; currentStudent++) {
+            int currentStudentStepCount = 0;
+            for (int uncompletedStep = 1; uncompletedStep < numSteps + 1; ++uncompletedStep) {
+                if (!stepsLeft[uncompletedStep]) {
+                    continue;
+                }
+                if (signUpTable[currentStudent][uncompletedStep] == 1) {
+                    currentStudentStepCount++;
+                }
+            }
+            if (currentStudentStepCount > bestStudentStepCount) {
+                bestStudentStepCount = currentStudentStepCount;
+                bestStudent = currentStudent;
+            }
+        }
+        for (int i = 1; i < numSteps + 1; ++i) {
+            if (signUpTable[bestStudent][i] == 1 && stepsLeft[i]) {
+                scheduleTable[bestStudent][i] = 1;
+                stepsLeft[i] = false;
+            }
+        }
+    }
     return scheduleTable;
+  }
+
+  boolean allStepsScheduled(boolean[] stepsLeft) {
+      for(int i = 1; i < stepsLeft.length; ++i) {
+          if(stepsLeft[i]) {
+              return false;
+          }
+      }
+      return true;
   }
 
   /**
@@ -153,7 +189,6 @@ public class PhysicsExperiment {
     // Experiment 1: Example 1 from README, 3 students, 6 steps:
     int[][] signUpsExperiment1 = {{1, 2, 3, 5}, {2, 3, 4}, {1, 4, 5, 6}};
     pe.makeExperimentAndSchedule(1, 3, 6, signUpsExperiment1);
-
     // Experiment 2: Example 2 from README, 4 students, 8 steps
     int[][] signUpsExperiment2 = {{5, 7, 8}, {2, 3, 4, 5, 6}, {1, 5, 7, 8}, {1, 3, 4, 8}};
     pe.makeExperimentAndSchedule(2, 4, 8, signUpsExperiment2);
